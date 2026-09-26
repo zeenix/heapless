@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fixed unsoundness in `IndexMap::retain` in the context of panicking predicate.
 - Bump MSRV to 1.95.
+- Rejected zero-capacity `HistoryBuf::new_with` at compile time, like `HistoryBuf::new`.
 - Added `swap_remove()` to `IndexMap` and `IndexSet`.
 - Deprecated `.remove()` in `IndexMap` and `IndexSet` in favour of `.swap_remove()`.
 - Fixed `IndexMap::truncate` leading to an inconsistent state.

@@ -236,7 +236,8 @@ impl<T, const N: usize> HistoryBuf<T, N> {
 
     /// Constructs a new history buffer.
     ///
-    /// The construction of a `HistoryBuf` works in `const` contexts.
+    /// The construction of a `HistoryBuf` works in `const` contexts. A zero-capacity buffer
+    /// (`N == 0`) fails to compile.
     ///
     /// # Examples
     ///
@@ -270,6 +271,8 @@ where
 {
     /// Constructs a new history buffer, where every element is the given value.
     ///
+    /// A zero-capacity buffer (`N == 0`) fails to compile.
+    ///
     /// # Examples
     ///
     /// ```
@@ -282,6 +285,10 @@ where
     /// ```
     #[inline]
     pub fn new_with(t: T) -> Self {
+        const {
+            assert!(N > 0);
+        }
+
         Self {
             phantom: PhantomData,
             data: HistoryBufStorageInner {
@@ -661,6 +668,21 @@ impl<T> DoubleEndedIterator for OldestOrdered<'_, T> {
         self.inner.next_back()
     }
 }
+
+/// Compile-fail tests for zero-capacity construction.
+///
+/// These are doctests rather than part of the `cfail` suite because the assertion only fires when
+/// the constructor is monomorphized, which `cargo check` skips.
+///
+/// ```compile_fail,E0080
+/// let _: heapless::HistoryBuf<u8, 0> = heapless::HistoryBuf::new();
+/// ```
+///
+/// ```compile_fail,E0080
+/// let _: heapless::HistoryBuf<u8, 0> = heapless::HistoryBuf::new_with(0);
+/// ```
+#[cfg(doctest)]
+struct ZeroCapacity;
 
 #[cfg(test)]
 mod tests {
