@@ -31,7 +31,7 @@
 //! assert_eq!(avg, 4);
 //! ```
 
-use core::{fmt, marker::PhantomData, mem::MaybeUninit, ops::Deref, ptr, slice};
+use core::{fmt, hint, marker::PhantomData, mem::MaybeUninit, ops::Deref, ptr, slice};
 
 #[cfg(feature = "zeroize")]
 use zeroize::Zeroize;
@@ -403,6 +403,9 @@ impl<T, S: HistoryBufStorage<T> + ?Sized> HistoryBufInner<T, S> {
 
         self.write_at += 1;
         if self.write_at == self.capacity() {
+            // Without this hint, the reset below compiles to conditional moves, making each write
+            // depend on the previous one.
+            hint::cold_path();
             self.write_at = 0;
             self.filled = true;
         }
